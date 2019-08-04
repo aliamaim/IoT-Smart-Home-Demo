@@ -40,6 +40,53 @@ client.subscribe(configuration.houseid + "/office/temperature", qos=1)
 client.subscribe(configuration.houseid + "/bed/temperature", qos=1)
 client.subscribe(configuration.houseid + "/living/temperature", qos=1)
 ###########
+
+
+class MainPage:
+    def __init__(self, root):
+        self.frames = []
+        self.root = root
+        self.root.geometry(
+            "{0}x{1}+0+0".format(self.root.winfo_screenwidth(), self.root.winfo_screenheight()))
+        self.root.focus_set()
+        self.root.title("Smart Home")
+
+        self.list_of_frames = configuration.initialize_from_save()
+        for frame in self.list_of_frames:
+            frame.create(self.root)
+
+    def update_meters(self, topic, value):
+        for frame in self.list_of_frames:
+            for meter in frame.meters:
+                if topic == meter.topic:
+                    meter.reading.set(value)
+                    break
+
+    def update(self):
+        # constantly update the GUI
+        self.root.update()
+
+        for frame in self.list_of_frames:
+            for button in frame.buttons:
+                # Check if button states changed (ignore redundant)
+                if button.button_state != button.button_prev_state:
+                    client.publish(topic=button.topic, payload=int(button.button_state), qos=1, retain=False)
+                    button.button_prev_state = button.button_state
+
+
+master = Tk()
+master.protocol("WM_DELETE_WINDOW", exit_app)
+main_page = MainPage(master)
+
+while 1:
+    if running:
+        main_page.update()
+    else:
+        sys.exit(0)
+    # constantly check if any messages arrived on subscribed topics
+    client.loop()
+
+
 '''
 class StartPage:
     def __init__(self, root):
@@ -113,85 +160,3 @@ class ConfigurationPage:
         # constantly update the GUI
         self.root.update()
 '''
-
-
-class MainPage:
-    def __init__(self, root):
-        self.frames = []
-        self.root = root
-        self.root.geometry(
-            "{0}x{1}+0+0".format(self.root.winfo_screenwidth(), self.root.winfo_screenheight()))
-        self.root.focus_set()
-        self.root.title("Smart Home")
-
-        self.list_of_frames = configuration.initialize_from_save()
-        for frame in self.list_of_frames:
-            frame.create(self.root)
-
-    def update_meters(self, topic, value):
-        for frame in self.list_of_frames:
-            for meter in frame.meters:
-                if topic == meter.topic:
-                    meter.reading.set(value)
-                    break
-
-    def update(self):
-        # constantly update the GUI
-        self.root.update()
-
-        for frame in self.list_of_frames:
-            for button in frame.buttons:
-                # Check if button states changed (ignore redundant)
-                if button.button_state != button.button_prev_state:
-                    client.publish(topic=button.topic, payload=int(button.button_state), qos=1, retain=False)
-                    button.button_prev_state = button.button_state
-
-
-master = Tk()
-master.protocol("WM_DELETE_WINDOW", exit_app)
-main_page = MainPage(master)
-
-while 1:
-    '''if page == 0 and start is not None:
-        start.update()
-    elif page == 1 and start.setup is not None:
-        start.config_page.update()
-    elif page == 2 and start.main is not None:
-        start.mapp.update()
-    '''
-    if running:
-        main_page.update()
-    else:
-        sys.exit(0)
-    # constantly check if any messages arrived on subscribed topics
-    client.loop()
-
-
-
-'''
-        # Office Frame
-        office_button_names = ["Light", "Air Conditioner"]
-        office_meter_names = ["Temperature"]
-        office_frame = gui.FrameCreate(250, 650, 20, 20, "Office",office_button_names,
-                                       office_meter_names, "office")
-        self.frames.append(office_frame)
-        ###########
-
-        # Bedroom Frame
-        bed_button_names = ["Light", "Air Conditioner"]
-        bed_meter_names = ["Temperature"]
-        bed_frame = gui.FrameCreate(250, 650, 310, 20, "Bedroom", bed_button_names,
-                                    bed_meter_names, "bed")
-        bed_frame.create(root)
-        self.frames.append(bed_frame)
-        ###########
-
-        # Livingroom Frame
-        living_button_names = ["Light", "Air Conditioner"]
-        living_meter_names = ["Temperature"]
-        living_frame = gui.FrameCreate(250, 650, 600, 20, "Living Room", living_button_names,
-                                       living_meter_names, "living")
-        self.frames.append(living_frame)
-        ###########
-        configuration.frames_g = self.frames
-        '''
