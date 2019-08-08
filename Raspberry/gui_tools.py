@@ -10,7 +10,7 @@ class ToggleButton:
         self.button_state = False
         self.button_prev_state = False
 
-        self.button_canvas = Canvas(master=frame,width=50, height=50, bg='LightGrey', highlightthickness=0)
+        self.button_canvas = Canvas(master=frame, width=50, height=50, bg='LightGrey', highlightthickness=0)
         self.button_canvas.place(x=self.x+120, y=self.y)
         self.button_oval_id = self.button_canvas.create_oval(10, 10, 30, 30, width=2, fill='red4')
 
@@ -30,12 +30,14 @@ class ToggleButton:
 
 class ReadingMeter:
     def __init__(self, x, y, text, frame, frame_code):
+        self.x = x
+        self.y = y
         self.reading = StringVar()
         self.reading.set("0")
         var_name = Label(frame, text=text)
         self.display = Label(frame, textvariable=self.reading)  # we need this Label as a variable
-        self.display.place(x=x+120, y=y)
-        var_name.place(x=x, y=y)
+        self.display.place(x=self.x+120, y=self.y)
+        var_name.place(x=self.x, y=self.y)
 
         self.topic = configuration.houseid + "/" + frame_code + "/" + text.lower().replace(" ", "_")
 
@@ -73,14 +75,17 @@ class FrameCreate:
         ###################################
 
         # Creating the toggle buttons
-        location_y = 100  # Relative to the parent frame
+        button_location_y = 100  # Relative to the parent frame
         for button_name in self.button_names:
-            button = ToggleButton(10, location_y, button_name, self.frame, self.frame_code)
+            button = ToggleButton(10, button_location_y, button_name, self.frame, self.frame_code)
             self.buttons.append(button)
-            location_y += 100
+            button_location_y += 70
 
+        # Creating meters (sensors,etc..)
+        meter_location_y = button_location_y
         for meter_name in self.meter_names:
-            meter = ReadingMeter(10, location_y, meter_name, self.frame, self.frame_code)
+            meter = ReadingMeter(10, meter_location_y, meter_name, self.frame, self.frame_code)
             self.meters.append(meter)
+            meter_location_y += 50
         ##################################
 

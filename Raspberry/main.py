@@ -3,6 +3,7 @@ import paho.mqtt.client as mqtt
 import Raspberry.gui_tools as gui
 import configuration
 import sys
+import os.path
 
 # Page number is used for the periodic updating of the windows
 # to avoid trying to update(access) a non-existent/destroyed frame
@@ -50,8 +51,12 @@ class MainPage:
             "{0}x{1}+0+0".format(self.root.winfo_screenwidth(), self.root.winfo_screenheight()))
         self.root.focus_set()
         self.root.title("Smart Home")
+        if os.path.exists('C:/Users/Ali.Amr/PycharmProjects/Smart_Home/config.csv'):
+            self.list_of_frames = configuration.initialize_from_save()
+        else:
+            configuration.initialize_first_time()
+            self.list_of_frames = configuration.initialize_from_save()
 
-        self.list_of_frames = configuration.initialize_from_save()
         for frame in self.list_of_frames:
             frame.create(self.root)
 
