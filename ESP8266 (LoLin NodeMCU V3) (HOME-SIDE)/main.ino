@@ -1,4 +1,5 @@
 //USING ARDUINO
+//This code is just used for testing and proof of concept 
 
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
@@ -10,7 +11,7 @@ void callback(char* topic, byte* payload, unsigned int length);
 const char* ssid = "Android";
 const char* password =  "123456789";
 
-const char* mqttServer = "iot.eclipse.org";
+const char* mqttServer = "test.mosquitto.org";
 const int mqttPort = 1883;
 
 WiFiClient espClient;
@@ -58,11 +59,12 @@ void setup()
 //**********************************
 
 //Testing publishing
-    client.publish("g2k/esp/test", "Hello from ESP8266");
+    client.publish("a000/office/temperature", "21");
 //Testing subscribing
-    client.subscribe("g2k/esp/test");
+    client.subscribe("a000/office/light");
 
   }
+  digitalWrite(led, HIGH);
 }
 
 //Called whenever a message arrives
@@ -74,6 +76,15 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message:");
   for (int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
+  }
+  char ledState = (char)payload[0];
+  if(ledState == '0')
+  {
+    digitalWrite(led, HIGH);
+  }
+  else if(ledState == '1')
+  {
+    digitalWrite(led, LOW);
   }
  
   Serial.println();
@@ -89,9 +100,9 @@ void reconnect() {
     if (client.connect("AliAmaim")) {
       Serial.println("connected");
       // Once connected, publish an announcement...
-      client.publish("g2k/esp/test", "Hello again from ESP8266");
+      client.publish("a000/office/temperature", "30");
       // ... and resubscribe
-      client.subscribe("g2k/esp/test");
+      client.subscribe("a000/office/light");
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -104,12 +115,6 @@ void reconnect() {
 
 void loop() 
 {
-  /*
-  digitalWrite(led, LOW);
-  delay(100);
-  digitalWrite(led, HIGH);
-  delay(100);
-  */
   if (!client.connected()) {
     reconnect();
   }
