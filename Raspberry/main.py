@@ -30,13 +30,10 @@ def on_message(client, userdata, message):
 
 
 # Establishing MQTT Connection
-broker_url = "iot.eclipse.org"
-broker_port = 1883
-
 client = mqtt.Client("G2K_RaspberryPie3_x01")
 client.on_connect = on_connect
 client.on_message = on_message
-client.connect(broker_url, broker_port)
+client.connect(configuration.broker_url, configuration.broker_port)
 client.subscribe(configuration.houseid + "/office/temperature", qos=1)
 client.subscribe(configuration.houseid + "/bed/temperature", qos=1)
 client.subscribe(configuration.houseid + "/living/temperature", qos=1)
