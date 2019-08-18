@@ -2,10 +2,6 @@ import csv
 import configuration
 from datetime import datetime
 import matplotlib
-import numpy as np
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
-from tkinter import *
 matplotlib.use('TkAgg')
 
 
@@ -16,7 +12,7 @@ class PowerCalculations:
 
             for row_in_config in config_file:
                 buttons = row_in_config.split(',')
-                for item in buttons[3:]:
+                for item in buttons[3:3+int(buttons[2])]:
                     # in he config CSV file
                     # 2nd column in the row represents frame code and 3rd column represents number of devices in frame
                     # The preceding columns are the devices names (that's where we start iterating)
@@ -45,6 +41,3 @@ class PowerCalculations:
                                 accumulated_time_hr += difference_time
                         print("Your " + item.rstrip() + " in your " + buttons[0] + " in house id " + configuration.houseid
                               + " has consumed " + str(accumulated_time_hr * 2) + " kWh of electricity.")
-
-
-mypower = PowerCalculations()
