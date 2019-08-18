@@ -7,6 +7,8 @@ houseid = "a000"  # To be modified so that it's configured by user/program and s
 # standard frame width & height
 frame_width = 250
 frame_height = 650
+broker_url = "test.mosquitto.org"
+broker_port = 1883
 
 
 # Set up the configuration file according to the user preferences for future use
