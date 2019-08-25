@@ -23,9 +23,22 @@ def on_connect(client, userdata, flags, rc):
     print("Connected With Result Code " + rc)
 
 
+def on_publish(client, userdata, result):
+    print("data published \n")
+    pass
+
 # Called when an MQTT message is received
 def on_message(client, userdata, message):
     print(message.topic + " Received: " + message.payload.decode())
+    if "filesend000000" in message.topic:
+        print("ENTERED")
+        print(message.topic)
+        print(message.payload.decode())
+        topic = message.topic.split("/")
+        f = open(topic[2]+".jpg", "w")
+        f.write(message.payload)
+        f.close()
+        return
     main_page.update_meters(message.topic, message.payload.decode())
 
 
@@ -34,9 +47,7 @@ client = mqtt.Client("G2K_RaspberryPie3_x01")
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(configuration.broker_url, configuration.broker_port)
-client.subscribe(configuration.houseid + "/office/temperature", qos=1)
-client.subscribe(configuration.houseid + "/bed/temperature", qos=1)
-client.subscribe(configuration.houseid + "/living/temperature", qos=1)
+client.subscribe(configuration.houseid + "/#", qos=1)
 ###########
 
 
@@ -55,7 +66,11 @@ class MainPage:
             self.list_of_frames = configuration.initialize_from_save()
 
         for frame in self.list_of_frames:
-            frame.create(self.root)
+            frame.create(self.root, self.vis_callback)
+
+    def vis_callback(self, topic):
+        client.publish(topic=configuration.houseid + "/filerequest" + "/" + topic.replace("/", "_"),
+                       payload=str(1), qos=0, retain=False)
 
     def update_meters(self, topic, value):
         for frame in self.list_of_frames:
@@ -70,7 +85,7 @@ class MainPage:
 
         for frame in self.list_of_frames:
             for button in frame.buttons:
-                # Check if button states changed (ignore redundant)
+                # Check if visualize_button states changed (ignore redundant)
                 if button.button_state != button.button_prev_state:
                     client.publish(topic=button.topic, payload=int(button.button_state), qos=1, retain=False)
                     button.button_prev_state = button.button_state

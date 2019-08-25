@@ -36,20 +36,31 @@ class ReadingMeter:
         self.reading.set("0")
         var_name = Label(frame, text=text)
         self.display = Label(frame, textvariable=self.reading)  # we need this Label as a variable
-        self.display.place(x=self.x+120, y=self.y)
+        self.display.place(x=self.x+100, y=self.y)
         var_name.place(x=self.x, y=self.y)
 
         self.topic = configuration.houseid + "/" + frame_code + "/" + text.lower().replace(" ", "_")
 
+        self.visualize_button = Button(frame, text="Visualize", pady=3, command=self.button_callback)
+        self.visualize_button.configure(font=("Corbert", 8))
+        self.visualize_button.place(x=self.x+140, y=self.y-5)
+        self.callback = None
+
+    def set_callback(self, callback):
+        self.callback = callback
+
+    def button_callback(self):
+        self.callback(self.topic)
+
 
 class FrameCreate:
-    def __init__(self, width, height, x, y, text, button_names, meter_names, frame_code):
+    def __init__(self, width, height, x, y, text, button_names, meter_names, frame_id):
         self.width = width
         self.height = height
         self.x = x
         self.y = y
         self.text = text
-        self.frame_code = frame_code
+        self.frame_code = frame_id
 
         self.button_names = button_names
         self.meter_names = meter_names
@@ -57,12 +68,14 @@ class FrameCreate:
         self.frame = None
         self.buttons = []
         self.meters = []
-        self.code = frame_code
+        self.id = frame_id
+        self.vis_callback = None
 
-    def create(self, master):
+    def create(self, master, vis_callback):
         # Creating the frame which will be parent to all buttons/meters in it.
         self.frame = Frame(master=master, width=self.width, height=self.height,
                            bd=3, relief=RIDGE, bg="LightGray", colormap="new")
+        self.vis_callback = vis_callback
         self.frame.place(x=self.x, y=self.y)
         ##################################
 
@@ -85,6 +98,7 @@ class FrameCreate:
         meter_location_y = button_location_y
         for meter_name in self.meter_names:
             meter = ReadingMeter(10, meter_location_y, meter_name, self.frame, self.frame_code)
+            meter.set_callback(self.vis_callback)
             self.meters.append(meter)
             meter_location_y += 50
         ##################################
