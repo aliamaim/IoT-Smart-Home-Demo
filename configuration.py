@@ -18,7 +18,7 @@ def initialize_first_time():
         frames_number = convert_input_to_int("How many rooms is your home?: ")
         for i in range(frames_number):
             frame_name = input("What is the name of this room?: ")
-            frame_code = frame_name.lower().split()[0]  # If name is Living Room code will be --> living
+            frame_code = frame_name.lower().split()[0]  # If name is Living Room id will be --> living
 
             devices_number = convert_input_to_int("How many digital(ON/OFF) devices you wish to control?: ")
             frame_info = [frame_name, frame_code, devices_number]
