@@ -14,7 +14,7 @@ class PowerCalculations:
                 buttons = row_in_config.split(',')
                 for item in buttons[3:3+int(buttons[2])]:
                     # in he config CSV file
-                    # 2nd column in the row represents frame code and 3rd column represents number of devices in frame
+                    # 2nd column in the row represents frame id and 3rd column represents number of devices in frame
                     # The preceding columns are the devices names (that's where we start iterating)
                     # so houseid_frameid_devicename.csv gives us the CSV file name
                     with open(configuration.houseid + '_' + buttons[1] + '_'

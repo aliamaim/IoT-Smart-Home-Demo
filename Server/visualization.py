@@ -3,11 +3,11 @@ import csv
 from datetime import datetime
 
 
-class GraphVisualize:
+class GraphCreate:
     def __init__(self, filename, label):
         self.list_of_datetimes = []
         self.list_of_readings = []
-        with open(filename, 'r') as csv_file:
+        with open(filename + '.csv', 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
 
             for row in csv_reader:
@@ -17,3 +17,4 @@ class GraphVisualize:
             plt.figure(label)
             plt.plot_date(self.list_of_datetimes, self.list_of_readings, linestyle='--')
             plt.gcf().autofmt_xdate()
+            plt.savefig(filename + '.png')

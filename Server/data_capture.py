@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import configuration
+import Server.visualization as vis
 import csv
 from datetime import datetime
 import os.path
@@ -16,6 +17,16 @@ def on_message(client, userdata, message):
     # Each file contains data related to only 1 meter/switch(history)
     # For example the lights in the bedroom in house a000 is stored in a file named a000_bed_light.csv
     if configuration.houseid in message.topic:
+        if "filerequest" in message.topic:
+            topic = message.topic.split('/')
+            vis.GraphCreate(topic[2], topic[2])
+            f = open(topic[2]+'.jpg', "rb")
+            file_content = f.read()
+            byte_arr = bytearray(file_content)
+            print(byte_arr)
+            client.publish(topic=configuration.houseid + "/filesend" + "/" + topic[2], payload=byte_arr,
+                           qos=0, retain=False)
+
         if os.path.exists('C:/Users/Ali.Amr/PycharmProjects/Smart_Home/config.csv'):
             with open("C:/Users/Ali.Amr/PycharmProjects/Smart_Home/config.csv", 'r') as config_file:
                 csv_reader = csv.reader(config_file)
