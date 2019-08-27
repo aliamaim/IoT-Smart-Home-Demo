@@ -1,9 +1,10 @@
 from tkinter import *
+from tkinter import ttk
 import paho.mqtt.client as mqtt
-import Raspberry.gui_tools as gui
 import configuration
+import visualization as vis
 import sys
-import os.path
+import os
 
 # Page number is used for the periodic updating of the windows
 # to avoid trying to update(access) a non-existent/destroyed frame
@@ -27,17 +28,17 @@ def on_publish(client, userdata, result):
     print("data published \n")
     pass
 
+
 # Called when an MQTT message is received
 def on_message(client, userdata, message):
     print(message.topic + " Received: " + message.payload.decode())
-    if "filesend000000" in message.topic:
-        print("ENTERED")
-        print(message.topic)
-        print(message.payload.decode())
-        topic = message.topic.split("/")
-        f = open(topic[2]+".jpg", "w")
-        f.write(message.payload)
+    if (configuration.houseid+"/filesend") in message.topic:
+        topic = message.topic.split('/')[2]
+        f = open(topic+".csv", "w", newline='')
+        f.write(message.payload.decode())
         f.close()
+        vis.GraphCreate(topic, topic)
+        os.remove(topic+".csv")
         return
     main_page.update_meters(message.topic, message.payload.decode())
 
@@ -69,8 +70,12 @@ class MainPage:
             frame.create(self.root, self.vis_callback)
 
     def vis_callback(self, topic):
-        client.publish(topic=configuration.houseid + "/filerequest" + "/" + topic.replace("/", "_"),
-                       payload=str(1), qos=0, retain=False)
+        client.publish(topic=configuration.houseid + "/filerequestm" + "/" + topic.replace("/", "_"),
+                       payload=str(1), qos=0, retain=False)  # m in filerequestm stands for meter
+
+    def power_callback(self, topic):
+        client.publish(topic=configuration.houseid + "/filerequestd" + "/" + topic.replace("/", "_"),
+                       payload=str(1), qos=0, retain=False)  # d in filerequestd stands for device
 
     def update_meters(self, topic, value):
         for frame in self.list_of_frames:
