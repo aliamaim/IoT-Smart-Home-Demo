@@ -70,13 +70,17 @@ class FrameCreate:
         self.meters = []
         self.id = frame_id
         self.vis_callback = None
+        self.power_callback = None
 
-    def create(self, master, vis_callback):
+        self.power_button = None
+
+    def create(self, master, vis_callback, power_callback):
         # Creating the frame which will be parent to all buttons/meters in it.
         self.frame = Frame(master=master, width=self.width, height=self.height,
                            bd=3, relief=RIDGE, bg="LightGray", colormap="new")
-        self.vis_callback = vis_callback
         self.frame.place(x=self.x, y=self.y)
+        self.vis_callback = vis_callback
+        self.power_callback = power_callback
         ##################################
 
         # Creating the title
@@ -101,5 +105,14 @@ class FrameCreate:
             meter.set_callback(self.vis_callback)
             self.meters.append(meter)
             meter_location_y += 50
+
+        # Power statistics for each frame
+        self.power_button = Button(master, text="Power Consumption", pady=3, command=self.power_button_callback)
+        self.power_button.configure(font=("Corbert", 8))
+        self.power_button.place(x=self.x + ((self.width - tkFont.Font.measure(title_font, self.text)) / 2),
+                                y=meter_location_y+20)
         ##################################
+
+    def power_button_callback(self):
+        self.power_callback(self.frame_code)
 

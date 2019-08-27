@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import paho.mqtt.client as mqtt
 import configuration
-import visualization as vis
+import Raspberry.visualization as vis
 import sys
 import os
 
@@ -31,16 +31,19 @@ def on_publish(client, userdata, result):
 
 # Called when an MQTT message is received
 def on_message(client, userdata, message):
-    print(message.topic + " Received: " + message.payload.decode())
-    if (configuration.houseid+"/filesend") in message.topic:
-        topic = message.topic.split('/')[2]
-        f = open(topic+".csv", "w", newline='')
-        f.write(message.payload.decode())
-        f.close()
-        vis.GraphCreate(topic, topic)
-        os.remove(topic+".csv")
-        return
-    main_page.update_meters(message.topic, message.payload.decode())
+    if configuration.houseid in message.topic:
+        if "/filesendm" in message.topic:
+            topic = message.topic.split('/')[2]
+            f = open(topic+".csv", "w", newline='')
+            f.write(message.payload.decode())
+            f.close()
+            vis.GraphCreate(topic, topic)
+            os.remove(topic+".csv")
+            return
+        elif "/filesendp" in message.topic:
+            print(message.payload.decode())
+            return
+        main_page.update_meters(message.topic, message.payload.decode())
 
 
 # Establishing MQTT Connection
@@ -67,14 +70,15 @@ class MainPage:
             self.list_of_frames = configuration.initialize_from_save()
 
         for frame in self.list_of_frames:
-            frame.create(self.root, self.vis_callback)
+            frame.create(self.root, self.vis_callback, self.power_callback)
 
     def vis_callback(self, topic):
         client.publish(topic=configuration.houseid + "/filerequestm" + "/" + topic.replace("/", "_"),
                        payload=str(1), qos=0, retain=False)  # m in filerequestm stands for meter
+        self.power_callback("bed")
 
     def power_callback(self, topic):
-        client.publish(topic=configuration.houseid + "/filerequestd" + "/" + topic.replace("/", "_"),
+        client.publish(topic=configuration.houseid + "/filerequestp" + "/" + topic,
                        payload=str(1), qos=0, retain=False)  # d in filerequestd stands for device
 
     def update_meters(self, topic, value):
