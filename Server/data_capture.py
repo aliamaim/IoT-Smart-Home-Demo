@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import configuration
+import Server.power_statistics as ps
 import csv
 from datetime import datetime
 import os.path
@@ -11,22 +12,25 @@ def on_connect(client, userdata, flags, rc):
 
 def on_message(client, userdata, message):
     timestamp = datetime.now()
-    print(message.topic + " Received: " + message.payload.decode())
     # Each file contains data related to only 1 meter/switch(history)
     # For example the lights in the bedroom in house a000 is stored in a file named a000_bed_light.csv
     if configuration.houseid in message.topic:
-        if "filerequestm" or "filerequestd" in message.topic:
-            topic = message.topic.split('/')
-            f = open(topic[2]+'.csv', "rb")
+        if "filerequestm" in message.topic:
+            topic = message.topic.split('/')[2]
+            f = open(topic+'.csv', "rb")
             file_content = f.read()
             byte_arr = bytearray(file_content)
-            if "filerequestm" in message.topic:
-                client.publish(topic=configuration.houseid + "/filesendm" + "/" + topic[2], payload=byte_arr,
-                               qos=0, retain=False)
-            elif "filerequestd" in message.topic:
-                client.publish(topic=configuration.houseid + "/filesendd" + "/" + topic[2], payload=byte_arr,
-                               qos=0, retain=False)
+            client.publish(topic=configuration.houseid + "/filesendm" + "/" + topic, payload=byte_arr,
+                           qos=0, retain=False)
             return
+        elif "filerequestp" in message.topic:
+            print("Entered here")
+            topic = message.topic.split('/')[2]
+            myPower = ps.PowerCalculations(topic)
+            calculations = myPower.calculate()
+            for item in calculations:
+                client.publish(topic=configuration.houseid + "/filesendp" + "/" + topic, payload=item,
+                               qos=0, retain=False)
 
         if "filesendm" or "filesendd" in message.topic:
             return

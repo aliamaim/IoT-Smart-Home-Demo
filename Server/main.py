@@ -1,3 +1,4 @@
 import Server.power_statistics as ps
 
-ps.PowerCalculations()
+myPower = ps.PowerCalculations("living")
+print(myPower.calculate())
