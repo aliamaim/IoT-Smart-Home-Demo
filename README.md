@@ -13,4 +13,4 @@ Communication Protocol used:
 GUI:
 - Created by Tkinter
 
-> **Note**: Turning on/off devices was simulated by turning on/off LEDS on the NodeMCU by sending a signal from the Raspberry Pie using the GUI. due to the unavailability of any > sensors, readings were hardcoded to be sent from the NodeMCU ESP8266 on the MQTT channel on which the Raspberry Pie and the Server are listening to.
+> **Note**: Turning on/off devices was simulated by turning on/off LEDS on the NodeMCU by sending a signal from the Raspberry Pie using the GUI. due to the unavailability of any sensors, readings were hardcoded to be sent from the NodeMCU ESP8266 on the MQTT channel on which the Raspberry Pie and the Server are listening to.
