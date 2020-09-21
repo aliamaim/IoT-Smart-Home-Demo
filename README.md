@@ -25,3 +25,5 @@ The server has a data capture script that always listens to the house published 
 
 > **Note**: Turning on/off devices was simulated by turning on/off LEDS on the NodeMCU by sending a signal from the Raspberry Pie using the GUI. due to the unavailability of any sensors, readings were hardcoded to be sent from the NodeMCU ESP8266 on the MQTT channel on which the Raspberry Pie and the Server are listening to.
 
+
+[![Watch the video](https://img.youtube.com/vi/fDDsRHOdZU8/1.jpg)](https://youtu.be/fDDsRHOdZU8)
